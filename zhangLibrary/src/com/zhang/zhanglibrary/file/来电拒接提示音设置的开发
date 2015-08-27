@@ -1,0 +1,43 @@
+之前在Windows Mobile上实现过“电话已关机”,“此号码已停机”等，
+是用的来电转移实现的，现在需要在Android上实现，发现360手机安全
+卫士for Android 也是通过来电转移实现的，尝试了下，代码如下：
+
+[java] view plaincopy
+//13800000000即是要转移到的号码  
+Intent localIntent = new Intent();  
+localIntent.setAction("android.intent.action.CALL");  
+Uri uri = Uri.parse("tel:" + "**67*13800000000%23");  
+localIntent.setData(uri);  
+startActivity(localIntent);   
+
+ 
+
+以下号码供参考：
+
+返回空号的提示音：**67#13800000000#   或者 **67#13444444444#
+返回暂时无法接通：**67#13642952697#
+返回停机的提示音：**67#13701110216#
+返回电话号码有误：**67#13800516309#
+返回电话号码关机：**67#13810538911#
+
+ 
+
+转移还有以下方式
+
+1、无条件呼叫转移： 激活方式**21*号码# , 取消方式##21# , 查询方式 *#21# ;
+ ! [6 ~# a; [3 X) u" X) r8 Y4 d
+2、 遇忙呼叫转移： 激活方式**67*号码# , 取消方式##67# , 查询方式 *#67# ; 
+3、 无应答呼叫转移: 激活方式**61*号码# , 取消方式##61# , 查询方式*#61# ; 
+不可及呼叫转移: 激活方式**62*号码# , 取消方式##62# , 查询方式 *#62# .
+
+所以取消呼叫转移的代码如下
+
+[java] view plaincopy
+Intent localIntent = new Intent();  
+localIntent.setAction("android.intent.action.CALL");  
+Uri uri = Uri.parse("tel:" + "%23%2367%23");  
+localIntent.setData(uri);  
+startActivity(localIntent);   
+
+注意："#" 必须用 "%23“代替
+

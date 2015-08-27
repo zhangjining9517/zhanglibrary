@@ -1,0 +1,444 @@
+package tf.common.activity;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import tf.common.HTTPDataTypes;
+import tf.common.adapter.Adapter_Server;
+import tf.common.adapter.Adapter_ViewPager;
+import tf.common.entity.Server;
+import tf.common.httputils.HttpInterface;
+import tf.common.httputils.HttpRequestListener;
+import tf.common.jsonutils.JSONResult;
+import tf.common.jsonutils.JSONUtils;
+import tf.common.tools.DateUtils;
+import tf.common.tools.ToastUtils;
+import android.app.ActivityGroup;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.alibaba.fastjson.JSONObject;
+import com.lidroid.xutils.view.annotation.ViewInject;
+import com.tf.servermanager.R;
+/**
+*viewpager 的三个切换
+*/
+@SuppressWarnings("deprecation")
+public class MainActivity extends Activity_Base implements OnClickListener {
+	private String title[] = { "全部", "在线", "离线" };
+	@ViewInject(R.id.ll_main)
+	private LinearLayout linearLayout;
+	private ArrayList<TextView> textViews;
+	private List<View> viewList;// Tab页面列表
+	@ViewInject(R.id.vp_activity_main_pager)
+	private ViewPager viewPager;
+
+	private ListView m_ListViewTotal;
+	private ListView m_ListViewOnLine;
+	private ListView m_ListViewOffLine;
+	private Adapter_Server m_AdapterServer;
+	private List<Server> serverList;
+	@ViewInject(R.id.btn_activity_main_refresh)
+	private Button btnRefresh;
+	
+	private int index = 0;
+	
+
+
+	@Override
+	protected int setContentView() {
+		// TODO Auto-generated method stub
+		return R.layout.layout_activity_main;
+	}
+
+	@Override
+	protected void initData() {
+		// TODO Auto-generated method stub
+		InItTitle1();
+		InItView();
+		m_AdapterServer = new Adapter_Server(this);
+		m_ListViewTotal.setAdapter(m_AdapterServer);
+		m_ListViewOnLine.setAdapter(m_AdapterServer);
+		m_ListViewOffLine.setAdapter(m_AdapterServer);
+		setSelector(0);
+		viewPager.setAdapter(new Adapter_ViewPager(m_ctx,viewList));
+		viewPager.clearAnimation();
+		viewPager.setOnPageChangeListener(new OnPageChangeListener() {
+
+			@Override
+			public void onPageSelected(int arg0) {
+				index =arg0;
+				setSelector(arg0);
+			}
+
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+
+			}
+
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+
+			}
+		});
+		btnRefresh.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				UpdateServerList(index);
+			}
+		});
+		
+		m_ListViewTotal.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				// TODO Auto-generated method stub
+				Intent intent = new Intent(getBaseContext(),Activity_Service.class);
+				intent.putExtra("Server", serverList.get(arg2));
+				startActivity(intent);
+			}
+		});
+		m_ListViewOnLine.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				// TODO Auto-generated method stub
+				Intent intent = new Intent(getBaseContext(),Activity_Service.class);
+				intent.putExtra("Server", serverList.get(arg2));
+				startActivity(intent);
+			}
+		});
+		m_ListViewOffLine.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				// TODO Auto-generated method stub
+				Intent intent = new Intent(getBaseContext(),Activity_Service.class);
+				intent.putExtra("Server", serverList.get(arg2));
+				startActivity(intent);
+			}
+		});
+	}
+
+	@Override
+	protected String setTitle() {
+		// TODO Auto-generated method stub
+		return "服务器监控";
+	}
+
+	@Override
+	protected boolean pressBackExitApp() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	
+	private void InItView() {
+		// TODO Auto-generated method stub
+		// 实例化一个LayoutInflater对象
+		LayoutInflater inflater = getLayoutInflater();
+
+		viewList = new ArrayList<View>();
+		View view01 = inflater.inflate(R.layout.layout_main_view, null);
+		View view02 = inflater.inflate(R.layout.layout_main_view, null);
+		View view03 = inflater.inflate(R.layout.layout_main_view, null);
+		m_ListViewTotal = (ListView) view01.findViewById(R.id.lv_main_view);
+		m_ListViewOnLine = (ListView) view02.findViewById(R.id.lv_main_view);
+		m_ListViewOffLine = (ListView) view03.findViewById(R.id.lv_main_view);
+		// View view01= getLocalActivityManager().startActivity("total",
+		// new Intent(this, Activity_ServerTotal.class)).getDecorView();
+		// View view02 = getLocalActivityManager().startActivity("online",
+		// new Intent(this, Activity_ServerOnLine.class)).getDecorView();
+		// View view03 = getLocalActivityManager().startActivity("offline",
+		// new Intent(this, Activity_ServerOffLine.class)).getDecorView();
+		viewList.add(view01);
+		viewList.add(view02);
+		viewList.add(view03);
+	}
+
+	/**
+	 * 功能:获得服务器信息
+	 */
+	private void UpdateServerList(final int tag) {
+		JSONObject object = new JSONObject();
+		object.put("dtStartTime", DateUtils.parseYmdHms(new Date()));
+		String data = object.toJSONString();
+		HttpInterface.postData(this,
+				HTTPDataTypes.TF_NETEXCHANGE_COMMON_QUERYSERVER, data,
+				new HttpRequestListener<String>() {
+
+					@Override
+					public void onSuccess(String Result) {
+						try {
+							JSONResult<Server> jsonResult = JSONUtils
+									.getJSONResult(Result, Server.class);
+							if (jsonResult.Success == 1) {
+								serverList = jsonResult.Items;
+								getServer(tag);
+								m_AdapterServer.clear();
+								m_AdapterServer.appendToList(serverList);
+							} else {
+								ToastUtils.show(MainActivity.this, "更新服务列表失败："
+										+ jsonResult.ResultText);
+							}
+						} catch (Exception e) {
+							ToastUtils.show(MainActivity.this,
+									"更新服务列表失败!" + e.getMessage());
+						}
+					}
+
+					@Override
+					public void onFailure(String strError) {
+						ToastUtils.show(MainActivity.this, "更新服务列表失败!"
+								+ strError);
+					}
+				});
+	}
+
+	protected void getServer(int tag) {
+		// TODO Auto-generated method stub
+		if (tag == 0) {
+			return;
+		} else if (tag == 1) {
+			getOnlineServer();
+			return;
+		} else if (tag == 2) {
+			getOffServer();
+		}
+
+	}
+
+	protected void getOnlineServer() {
+		// TODO Auto-generated method stub
+		for (int i = 0; i < serverList.size(); i++) {
+			if (!serverList.get(i).strStateInfo.equals("在线")) {
+				serverList.remove(i);
+			}
+		}
+	}
+
+	protected void getOffServer() {
+		// TODO Auto-generated method stub
+		for (int i = 0; i < serverList.size(); i++) {
+			if (!serverList.get(i).strStateInfo.equals("离线")) {
+				serverList.remove(i);
+			}
+		}
+	}
+
+	/***
+	 * 选中效果
+	 */
+	public void setSelector(int id) {
+		for (int i = 0; i < title.length; i++) {
+			if (id == i) {
+				Bitmap bitmap = BitmapFactory.decodeResource(getResources(),
+						R.drawable.tab_gviewpager_grouplist_item_bg_normal);
+				textViews.get(id).setBackgroundDrawable(
+						new BitmapDrawable(bitmap));
+				textViews.get(id).setTextColor(Color.GREEN);
+				viewPager.setCurrentItem(i);
+			} else {
+				textViews.get(i).setBackgroundDrawable(new BitmapDrawable());
+				textViews.get(i).setTextColor(
+						getResources().getColor(R.color.server_content_text));
+			}
+		}
+		UpdateServerList(id);
+	}
+
+	/**
+	 * 初始化标题项
+	 */
+	private void InItTitle1() {
+		// TODO Auto-generated method stub
+		textViews = new ArrayList<TextView>();
+		int width = getWindowManager().getDefaultDisplay().getWidth() / 3;
+		int height = 50;
+		for (int i = 0; i < title.length; i++) {
+			TextView textView = new TextView(this);
+			textView.setText(title[i]);
+			textView.setTextSize(16);
+			textView.setTextColor(Color.WHITE);
+			textView.setWidth(width);
+			textView.setHeight(height);
+			textView.setGravity(Gravity.CENTER);
+			textView.setId(i);
+			textView.setOnClickListener(this);
+			textViews.add(textView);
+			// 分割线
+			View view = new View(this);
+			LinearLayout.LayoutParams layoutParams = new LayoutParams(
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layoutParams.width = 1;
+			layoutParams.height = height;
+			layoutParams.gravity = Gravity.CENTER;
+			view.setLayoutParams(layoutParams);
+			view.setBackgroundResource(0x00000000);
+			linearLayout.addView(textView);
+			if (i != title.length - 1) {
+				linearLayout.addView(view);
+			}
+
+		}
+	}
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		// TODO Auto-generated method stub
+		if (item.getItemId() == R.id.action_settings) {
+			Intent intent = new Intent(MainActivity.this,
+					Activity_Options.class);
+			startActivity(intent);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		setSelector(v.getId());
+	}
+	
+	
+package tf.common.adapter;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.Context;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.view.View;
+/**
+viewpager 的适配器类
+*/
+public class Adapter_ViewPager extends PagerAdapter{
+	private List<View> m_ViewList;
+	private Context m_Context;
+	
+	public Adapter_ViewPager(Context ctx,List<View> viewList){
+		this.m_Context = ctx;
+		if(viewList == null){
+			m_ViewList = new ArrayList<View>();
+		}else{
+			this.m_ViewList = viewList;
+		}
+	}
+
+	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return m_ViewList.size();
+	}
+
+	@Override
+	public boolean isViewFromObject(View arg0, Object arg1) {
+		// TODO Auto-generated method stub
+		return arg0 == arg1;
+	}
+
+	@Override
+	public int getItemPosition(Object object) {
+		// TODO Auto-generated method stub
+		return super.getItemPosition(object);
+	}
+	
+	@Override
+	public void destroyItem(View container, int position, Object object) {
+		// TODO Auto-generated method stub
+		((ViewPager)container).removeView(m_ViewList.get(position));
+	}
+	
+	/***
+	 * 获取每一个item， 类于listview中的getview
+	 */
+	@Override
+	public Object instantiateItem(View container, int position) {
+		// TODO Auto-generated method stub
+		((ViewPager) container).addView(m_ViewList.get(position));
+		return m_ViewList.get(position);
+	}
+	
+	
+}
+	
+}
+
+/** viewpager 的xml的定义方法 */
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/activity_bg"
+    android:orientation="vertical" >
+    <HorizontalScrollView
+        android:id="@+id/horizontalScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fadingEdge="@null"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:id="@+id/ll_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/icon_tab_winter_ab" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_activity_main_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:background="@color/transparent"
+        android:flipInterval="30"
+        android:persistentDrawingCache="animation" />
+    <Button
+        android:id="@+id/btn_activity_main_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_margin="5dp"
+        android:background="@drawable/btn_normal_selector"
+        android:text="刷新"
+        android:textSize="20sp" />
+</LinearLayout>

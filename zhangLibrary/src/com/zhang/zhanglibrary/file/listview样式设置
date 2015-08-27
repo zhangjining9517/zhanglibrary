@@ -1,0 +1,19 @@
+<!--
+   	  常用的listview 设置
+     fadingedge设置没有上下阴影
+     divider 设置listview的列表之间的线
+     listSelector 设置listview选中无色
+     scrollingCache 设置listview 滑动颜色不闪
+-->
+<ListView
+        android:id="@+id/lv_normal_logcat_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@drawable/line"
+        android:fadingEdge="none"
+        android:listSelector="@color/transparent"
+        android:scrollingCache="false" />
+
+    
+
+  

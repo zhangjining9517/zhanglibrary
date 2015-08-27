@@ -1,0 +1,54 @@
+	class WifiReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			// TODO Auto-generated method stub
+			if (intent.getAction().equals(WifiManager.RSSI_CHANGED_ACTION)) {
+				// signal strength changed
+				Log.e(TAG, "信号强度改变");
+				Message msg = m_BroadcastHandler.obtainMessage();
+				msg.what = NORMAL_STATE;
+				msg.obj = intent;
+				m_BroadcastHandler.sendMessage(msg);
+			} else if (intent.getAction().equals(
+					WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+				m_BroadcastHandler.sendEmptyMessage(NET_STATE);
+			} else if (intent.getAction().equals(
+					WifiManager.WIFI_STATE_CHANGED_ACTION)) {// wifi打开与否
+				m_BroadcastHandler.sendEmptyMessage(NET_STATE);
+			} else if(intent.getAction().equals("android.sim.netstate.change")){
+				m_BroadcastHandler.sendEmptyMessage(NET_STATE);
+			}
+		}
+
+	}
+	
+	// 功能:显示WIFI信号强度变化
+	private void Show3GRSSIState() {
+		m_UIHolder.tv_WifiState.setVisibility(View.GONE);
+		m_UIHolder.iv_WifiState.setVisibility(View.VISIBLE);
+		m_UIHolder.tv_main_content_description.setText("移动网络状态");
+		switch (n3GRissStrength) {
+		case 5:
+			m_UIHolder.iv_WifiState.setImageResource(R.drawable.wifi_5);
+			break;
+		case 4:
+			m_UIHolder.iv_WifiState.setImageResource(R.drawable.wifi_4);
+			break;
+		case 3:
+			m_UIHolder.iv_WifiState.setImageResource(R.drawable.wifi_3);
+			break;
+		case 2:
+			m_UIHolder.iv_WifiState.setImageResource(R.drawable.wifi_2);
+			break;
+		case 1:
+			m_UIHolder.iv_WifiState.setImageResource(R.drawable.wifi_1);
+			break;
+		case 0:
+			m_UIHolder.iv_WifiState.setImageResource(R.drawable.wifi_0);
+			break;
+		default:
+			m_UIHolder.iv_WifiState.setImageResource(R.drawable.wifi_4);
+			break;
+		}
+	}

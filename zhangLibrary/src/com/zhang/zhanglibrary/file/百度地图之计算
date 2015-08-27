@@ -1,0 +1,215 @@
+	
+	//π值
+	static double DEF_PI = Math.PI; // 2*PI
+	//2 π值
+	static double DEF_2PI = 2 * Math.PI; // 2*PI
+	// π除 180度的值
+	static double DEF_PI180 = Math.PI / 180; // PI/180.0
+	//地球半径
+	static double DEF_R = 6378140.0; // radius of earth
+	/**
+	 * 获取两点之间的距离 条件 距离较短
+	 * 
+	 * @param point1
+	 * @param point2
+	 */
+	private double getShortDistance(LatLng point1, LatLng point2) {
+		// TODO Auto-generated method stub
+		double ew1, ns1, ew2, ns2;
+		double dx, dy, dew;
+		double distance;
+		// 角度转换为弧度
+		ew1 = point1.longitude * DEF_PI180;
+		ns1 = point1.latitude * DEF_PI180;
+		ew2 = point2.longitude * DEF_PI180;
+		ns2 = point2.latitude * DEF_PI180;
+		// 经度差
+		dew = ew1 - ew2;
+		// 若跨东经和西经180度，进行调整
+		if (dew > DEF_PI) {
+			dew = DEF_2PI + dew;
+		} else if (dew < -DEF_PI) {
+			dew = DEF_2PI + dew;
+		}
+		dx = DEF_R * Math.cos(ns1) * dew;// 东西方向长度(在纬度圈上的投影长度)
+		dy = DEF_R * (ns1 - ns2);// 南北方向长度(在经度圈上的投影长度)
+		// 勾股定理求斜边长
+		distance = Math.sqrt(dx * dx + dy * dy);
+		return distance;
+	}
+	
+	/**
+	 * 获取两点之间的距离 距离较长
+	 * 
+	 * @param point1
+	 * @param point2
+	 */
+	private double getLongDistance(LatLng point1, LatLng point2) {
+		// TODO Auto-generated method stub
+		double ew1, ns1, ew2, ns2;
+		double distance;
+		// 角度转换为弧度
+		ew1 = point1.longitude * DEF_PI180;
+		ns1 = point1.latitude * DEF_PI180;
+		ew2 = point2.longitude * DEF_PI180;
+		ns2 = point2.latitude * DEF_PI180;
+		// 求大圆劣弧与球心所夹的角
+		distance = Math.sin(ns1) * Math.sin(ns2) + Math.cos(ns1)
+				* Math.cos(ns2) * Math.cos(ew1 - ew2);
+		// 调整到【-1,1】范围内，避免溢出
+		if (distance > 1.0) {
+			distance = 1.0;
+		} else if (distance < -1.0) {
+			distance = -1.0;
+		}
+		// 求大圆路劣弧的长度
+		distance = DEF_R * Math.acos(distance);
+		return distance;
+	}
+
+	/**
+	 * 根据距离求点的坐标
+	 * 
+	 * @param point1
+	 * @param point2
+	 * @param i
+	 *            默认为相距第一个点的距离
+	 *			  获取指定点的坐标
+	 * 
+	 * 
+	 * @return
+	 */
+	private LatLng getCurrentLatlng(LatLng point1, LatLng point2, int i) {
+		// TODO Auto-generated method stub
+		// 所求点与起始点在东西与南北的 x,y的值
+		double cdx, cdy;
+		// 已知点的投影在东西与南北的x ,y 的值
+		double dx, dy;
+		double ew1, ns1;
+		double ew2, ns2;
+		// 经度差
+		double dew;
+		double longitude, latitude;
+		// 东西投影与南北投影的角度
+		double radius;
+		// 所求点
+		LatLng point;
+		// 角度转换为弧度
+		ew1 = point1.longitude * DEF_PI180;
+		ns1 = point1.latitude * DEF_PI180;
+		ew2 = point2.longitude * DEF_PI180;
+		ns2 = point2.latitude * DEF_PI180;
+		// 经度差
+		dew = ew1 - ew2;
+		// 若跨东经和西经180度，进行调整
+		if (dew > DEF_PI) {
+			dew = DEF_2PI + dew;
+		} else if (dew < -DEF_PI) {
+			dew = DEF_2PI + dew;
+		}
+		dx = DEF_R * Math.cos(ns1) * dew;// 东西方向长度(在纬度圈上的投影长度)
+		dy = DEF_R * (ns1 - ns2);// 南北方向长度(在经度圈上的投影长度)
+		LogUtils.d(Activity_PointDistance.class, "dx = " + dx + " dy =" + dy);
+		// 获取角度
+		radius = Math.atan(dy / dx) * (180 / Math.PI);
+		// 依据 向左dx = 387 dy = 19.9 向下 dx = 0 dy = 346 向右 距离设为 负 dx = - 709 dy =
+		// -30 向上 dx = -33 dy = -310
+		if ((dx < 0 && dy < 0) || (dx < 0 && dy >= 0)) {
+			i = -i;
+			LogUtils.e(Activity_PointDistance.class, "x < 0 y < 0 " + radius);
+		} else if ((dx >= 0 && dy >= 0) || (dx >= 0 && dy < 0)) {
+			LogUtils.e(Activity_PointDistance.class, "x>=0 或 y >= 0 " + radius);
+		}
+		cdx = Math.cos(radius * Math.PI / 180) * i;
+		cdy = Math.sin(radius * Math.PI / 180) * i;
+		// 角度转换为弧度
+		ew1 = point1.longitude * DEF_PI180;
+		ns1 = point1.latitude * DEF_PI180;
+		ns2 = ns1 - cdy / DEF_R;
+		dew = cdx / (DEF_R * Math.cos(ns1));
+		// 若跨东经和西经180度，进行调整
+		if (dew > DEF_PI) {
+			dew = DEF_2PI + dew;
+		} else if (dew < -DEF_PI) {
+			dew = DEF_2PI + dew;
+		}
+		ew2 = ew1 - dew;
+		longitude = ew2 / DEF_PI180;
+		latitude = ns2 / DEF_PI180;
+		LogUtils.e(Activity_PointDistance.class, "latitude = " + latitude
+				+ "longitude = " + longitude);
+		point = new LatLng(latitude, longitude);
+		return point;
+	}
+	
+	/**
+	 * 功能：画线  在地图上画线
+	 * 
+	 * @param list
+	 */
+	private void drawMapline(List<LatLng> list) {
+		if (list == null || list.size() == 0)
+			return;
+		// 与web端颜色一致
+		OverlayOptions ooPolyline = new PolylineOptions().width(8)
+				.color(0x990000EE).points(list);
+		m_BaiduMap.addOverlay(ooPolyline);
+	}
+	
+	/**
+	 * 功能：在地图上画铁路线
+	 */
+	private void drawLine() {
+		List<LatLng> list = new ArrayList<LatLng>();
+		// 116.366468,39.924328
+		LatLng point1 = new LatLng(39.924328, 116.366468);
+		list.add(point1);
+		//116.362785,39.929336
+		LatLng point2 = new LatLng(39.929336,116.362785);
+		list.add(point2);
+		drawMapline(list);
+		LogUtils.e(Activity_PointDistance.class,
+				DistanceUtil.getDistance(point1, point2) + "");
+		double distance = getShortDistance(point1, point2);
+		LogUtils.e(Activity_PointDistance.class, "自己计算短值" + distance);
+		double distance2 = getLongDistance(point1, point2);
+		LogUtils.e(Activity_PointDistance.class, "自己计算长值" + distance2);
+		LatLng currentLatlng = getCurrentLatlng(point1, point2, 208);
+		drawStation(currentLatlng);
+	}
+	
+	/**
+	 * 功能：画车站
+	 */
+	private void drawStation(LatLng point) {
+
+		BitmapDescriptor bitmap;
+		MarkerOptions ooText1;
+		bitmap = BitmapDescriptorFactory.fromView(createStationView());
+		ooText1 = new MarkerOptions().position(point).icon(bitmap)
+				.anchor(0.5f, 0.5f).title("station");
+		// 在地图上添加Marker，并显示
+		m_BaiduMap.addOverlay(ooText1);
+	}
+	
+	/**
+	 * 功能：生成站点View
+	 * 
+	 * @return
+	 */
+	private View createStationView() {
+		LinearLayout layout = new LinearLayout(m_ctx);
+		layout.setOrientation(LinearLayout.VERTICAL);
+		layout.setGravity(Gravity.CENTER_HORIZONTAL);
+		ImageView imageView = new ImageView(m_ctx);
+		imageView.setImageResource(R.drawable.firstlevel);
+		TextView textView = new TextView(m_ctx);
+		textView.setTextSize(16f);
+		textView.setBackgroundColor(0x99000000);
+		textView.setTextColor(Color.WHITE);
+		textView.setText("计算点");
+		layout.addView(imageView);
+		// layout.addView(textView);
+		return layout;
+	}
+

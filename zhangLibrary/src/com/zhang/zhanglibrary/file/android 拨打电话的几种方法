@@ -1,0 +1,17 @@
+步骤一 添加权限
+<uses-permission android:name="android.permission.CALL_PHONE" />
+步骤二
+方法一
+Intent intent = new Intent(Intent.ACTION_DIAL);
+Uri data = Uri.parse("tel:" + "135xxxxxxxx");
+intent.setData(data);
+startActivity(intent);
+这种方式的特点就是，去到了拨号界面，但是实际的拨号是由用户点击实现的。
+
+方法二
+Intent intent = new Intent(Intent.ACTION_CALL);
+Uri data = Uri.parse("tel:" + "135xxxxxxxx");
+intent.setData(data);
+startActivity(intent);
+这种方式的特点就是，直接拨打了你所输入的号码，所以这种方式对于用户没有直接的提示效果，Android推荐使用第一种方式
+，如果是第二种的话，建议在之前加一个提示，是否拨打号码，然后确定后再拨打。

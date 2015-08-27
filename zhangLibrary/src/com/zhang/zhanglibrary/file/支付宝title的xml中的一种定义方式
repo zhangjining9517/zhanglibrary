@@ -1,0 +1,7 @@
+ <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/msp_demo_title_bg" //title的背景颜色
+        android:scaleType="center"
+        android:src="@drawable/msp_demo_title" // title中间的字体
+        tools:ignore="ContentDescription" />

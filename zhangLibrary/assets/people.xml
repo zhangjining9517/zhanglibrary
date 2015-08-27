@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peoples>
+    <People>
+        <Name>张三</Name>
+        <Age>19</Age>
+        <Sex>男</Sex>
+    </People>
+    <People>
+        <Name>小明</Name>
+        <Age>21</Age>
+        <Sex>男</Sex>
+    </People>
+    <People>
+        <Name>小花</Name>
+        <Age>24</Age>
+        <Sex>女</Sex>
+    </People>
+
+</Peoples>

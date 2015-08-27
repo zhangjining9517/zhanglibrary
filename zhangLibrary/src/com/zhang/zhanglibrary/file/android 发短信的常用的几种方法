@@ -1,0 +1,145 @@
+步奏一 添加权限
+<uses-permission android:name="android.permission.SEND_SMS"></uses-permission>
+<uses-permission android:name="android.permission.READ_SMS"></uses-permission>
+<uses-permission android:name="android.permission.RECEIVE_SMS"></uses-permission>
+
+方法一
+private void send1(String phone, String message){
+ 
+        PendingIntent pi = PendingIntent.getActivity(this, 0, new Intent(this, testSms.class), 0);
+ 
+        SmsManager sms = SmsManager.getDefault();
+ 
+        sms.sendTextMessage(phone, null, message, pi, null);
+ 
+}
+
+方法二
+短信发送后的状态，需要两个Receiver来实现
+private void send2(String number, String message){
+    String SENT = "sms_sent";
+    String DELIVERED = "sms_delivered";
+    
+    PendingIntent sentPI = PendingIntent.getActivity(this, 0, new Intent(SENT), 0);
+    PendingIntent deliveredPI = PendingIntent.getActivity(this, 0, new Intent(DELIVERED), 0);
+    
+    registerReceiver(new BroadcastReceiver(){
+ 
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                switch(getResultCode())
+                {
+                    case Activity.RESULT_OK:
+                        Log.i("====>", "Activity.RESULT_OK");
+                        break;
+                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                        Log.i("====>", "RESULT_ERROR_GENERIC_FAILURE");
+                        break;
+                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+                        Log.i("====>", "RESULT_ERROR_NO_SERVICE");
+                        break;
+                    case SmsManager.RESULT_ERROR_NULL_PDU:
+                        Log.i("====>", "RESULT_ERROR_NULL_PDU");
+                        break;
+                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+                        Log.i("====>", "RESULT_ERROR_RADIO_OFF");
+                        break;
+                }
+            }
+    }, new IntentFilter(SENT));
+    
+    registerReceiver(new BroadcastReceiver(){
+        @Override
+        public void onReceive(Context context, Intent intent){
+            switch(getResultCode())
+            {
+                case Activity.RESULT_OK:
+                    Log.i("====>", "RESULT_OK");
+                    break;
+                case Activity.RESULT_CANCELED:
+                    Log.i("=====>", "RESULT_CANCELED");
+                    break;
+            }
+        }
+    }, new IntentFilter(DELIVERED));
+    
+        SmsManager smsm = SmsManager.getDefault();
+        smsm.sendTextMessage(number, null, message, sentPI, deliveredPI);
+}
+
+方法三 发送加密数据
+private void send2(String number, String message){
+    SmsManager smsm = SmsManager.getDefault();
+    short port = 1000;
+    PendingIntent pi = PendingIntent.getBroadcast(test.this, 0, new Intent(), 0);
+    smsm.sendDataMessage(number, null, port, message.getBytes(), pi, null);
+}
+
+方法四 调用系统
+message 为发送人电话号
+private void send(String message){
+    Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+    sendIntent.putExtra("sms_body", message);
+    sendIntent.setType("vnd.android-dir/mms-sms");
+}
+
+private void send1(String number, String message){
+    Uri uri = Uri.parse("smsto:" + number);
+    Intent sendIntent = new Intent(Intent.ACTION_VIEW, uri);
+    sendIntent.putExtra("sms_body", message);
+    startActivity(sendIntent);
+}
+
+
+Uri uri = Uri.parse("smsto:10010");            
+Intent it = new Intent(Intent.ACTION_SENDTO, uri);            
+it.putExtra("sms_body", "102");            
+activity.startActivity(it); 
+
+方法五 调用系统直接发送
+//直接调用短信接口发短信  
+SmsManager smsManager = SmsManager.getDefault();  
+List<String> divideContents = smsManager.divideMessage(content);    
+for (String text : divideContents) {    
+    smsManager.sendTextMessage("150xxxxxxxx", null, text, sentPI, deliverPI);    
+}  
+smsManager.sendTextMessage(destinationAddress, scAddress, text, sentIntent, deliveryIntent)   
+
+-- destinationAddress：目标电话号码,你要发给谁 
+-- scAddress：短信中心号码，测试可以不填
+-- text: 短信内容
+-- sentIntent：发送 -->中国移动 --> 中国移动发送失败 --> 返回发送成功或失败信号 --> 后续处理  
+
+                          即，这个意图包装了短信发送状态的信息,是否发送成功 
+-- deliveryIntent： 发送 -->中国移动 --> 中国移动发送成功 --> 返回对方是否收到这个信息 --> 后续处理
+
+                           即：这个意图包装了短信是否被对方收到的状态信息,对方是否成功接收（供应商已经发送成功，但是对方没有收到）。 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,35 @@
+EXACTLY表示父视图希望子视图的大小应该是由specSize的值来决定的，
+系统默认会按照这个规则来设置子视图的大小，开发人员当然也可以按照自
+己的意愿设置成任意的大小。
+ AT_MOST表示子视图最多只能是specSize中指定的大小，开发人员应该
+ 尽可能小得去设置这个视图，并且保证不会超过specSize。系统默认会按
+ 照这个规则来设置子视图的大小，开发人员当然也可以按照自己的意愿设置成
+ 任意的大小。
+ UNSPECIFIED表示开发人员可以将视图按照自己的意愿设置成任意的大小，
+ 没有任何限制。这种情况比较少见，不太会用到。
+ 
+ /**
+	 * 标准测距方法写发
+	 * @param measureSpec
+	 * @param isWidth
+	 * @return
+	 */
+	private int getMeasureLength(int measureSpec, boolean isWidth) {
+		// TODO Auto-generated method stub
+		int measureMode = MeasureSpec.getMode(measureSpec);
+		int measureSize = MeasureSpec.getSize(measureSpec);
+		int size = 0;
+		int padding = isWidth ?  getPaddingLeft() + getPaddingRight() : getPaddingTop() + getPaddingBottom();
+		if(measureMode == MeasureSpec.EXACTLY){
+			size = measureSize;
+		}else{
+			//计算自适应的尺寸
+			size = padding + 800;
+			if(measureMode == MeasureSpec.AT_MOST){
+				//取最小值
+				size = Math.min(size, measureSpec);
+			}
+		}
+		return size;
+	}
+ 

@@ -1,0 +1,130 @@
+//自定义圆形的按下效果
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape >
+            <corners android:radius="3dip"/>
+            <solid android:color="#EEAD0E"/>
+            
+            <padding 
+                android:left="1dp"
+                android:right="1dp"
+                />
+        </shape>
+    </item>
+    <item android:state_pressed="false">
+        <shape >
+            <corners android:radius="3dip"/>
+            <solid android:color="#f8f8f8"/>
+            
+            <padding 
+                android:left="1dp"
+                android:right="1dp"
+                />
+        </shape>
+    </item>
+</selector>
+
+
+//使用样式画圆
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" >
+    <corners 
+        android:radius="50dp"
+        />
+    <solid android:color="#ff0000"/>
+
+</shape>
+
+//绘制带圆角背景
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval"
+    android:useLevel="false" >
+    <solid 
+        android:color="@android:color/holo_red_dark"
+        />
+
+    <stroke
+        android:width="1dp"
+        android:color="@android:color/holo_red_dark" />
+
+    <size
+        android:height="15dp"
+        android:width="15dp" />
+
+</shape>
+
+//自定义progress bar
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false" >
+
+    <item
+        android:drawable="@drawable/loading_0"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/loading_1"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/loading_2"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/loading_3"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/loading_4"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/loading_5"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/loading_6"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/loading_7"
+        android:duration="100"/>
+
+</animation-list>
+
+//标准的选择按钮样式
+//带有按下效果 与默认效果
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/map_search_nomal" android:state_pressed="false">
+    </item>
+    <item android:drawable="@drawable/map_search_press" android:state_pressed="true">
+    </item>
+
+</selector>
+
+//带有动画的箭头
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:drawable="@drawable/activity_zhanchangtu_arrow"
+        android:duration="300">
+    </item>
+    <item
+        android:drawable="@drawable/activity_zhanchangtu_arrow1"
+        android:duration="300">
+    </item>
+
+</animation-list>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

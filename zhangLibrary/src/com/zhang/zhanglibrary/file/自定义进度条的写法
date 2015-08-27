@@ -1,0 +1,146 @@
+		mRoundProgressBar1 = (RoundProgress) findViewById(R.id.roundProgressBar1);
+		mRoundProgressBar2 = (RoundProgress) findViewById(R.id.roundProgressBar2);
+		mRoundProgressBar3 = (RoundProgress) findViewById(R.id.roundProgressBar3);
+		mRoundProgressBar4 = (RoundProgress) findViewById(R.id.roundProgressBar4);
+		mRoundProgressBar5 = (RoundProgress) findViewById(R.id.roundProgressBar5);
+		
+
+		((Button)findViewById(R.id.button1)).setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						while(progress <= 100){
+							progress += 3;
+							
+							System.out.println(progress);
+							
+							mRoundProgressBar1.setProgress(progress);
+							mRoundProgressBar2.setProgress(progress);
+							mRoundProgressBar3.setProgress(progress);
+							mRoundProgressBar4.setProgress(progress);
+							mRoundProgressBar5.setProgress(progress);
+							
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						
+					}
+				}).start();
+			}
+		});
+		
+		
+		
+		
+		
+xml文件的一般格式	
+		
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android_custom="http://schemas.android.com/apk/res/com.zhang.zhanglibrary" //指明路径
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+
+    <com.zhang.zhanglibrary.customview.dialog.RoundProgress
+        android:id="@+id/roundProgressBar2"
+        android:layout_width="80dip"
+        android:layout_height="80dip"
+        android:layout_alignLeft="@+id/roundProgressBar1"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="78dp"
+        
+        
+        android_custom:roundColor="#D1D1D1"
+        android_custom:roundProgressColor="@android:color/black"
+        android_custom:textColor="#9A32CD"
+        android_custom:roundWidth="10dip"
+        android_custom:textSize="18sp" />
+
+    <com.zhang.zhanglibrary.customview.dialog.RoundProgress
+        android:id="@+id/roundProgressBar4"
+        android_custom:style="FILL"
+        android:layout_width="80dip"
+        android:layout_height="80dip"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/roundProgressBar1"
+        android:layout_marginRight="32dp"
+        android_custom:roundWidth="1dip"
+        android_custom:roundProgressColor="#C2C2C2" />
+
+    <com.zhang.zhanglibrary.customview.dialog.RoundProgress
+        android:id="@+id/roundProgressBar3"
+        android:layout_width="80dip"
+        android:layout_height="80dip"
+        android:layout_alignLeft="@+id/roundProgressBar4"
+        android:layout_alignTop="@+id/roundProgressBar2"
+        android_custom:roundColor="#C6E2FF"
+        android_custom:roundWidth="10dip"
+        android_custom:roundProgressColor="#CD3333"
+        android_custom:textIsDisplayable="false" />
+
+    <com.zhang.zhanglibrary.customview.dialog.RoundProgress
+        android:id="@+id/roundProgressBar5"
+        android:layout_width="50dip"
+        android:layout_height="50dip"
+        android:layout_below="@+id/roundProgressBar1"
+        android:layout_marginLeft="22dp"
+        android:layout_toRightOf="@+id/roundProgressBar1" />
+    
+    
+        <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="Button" />
+
+    <com.zhang.zhanglibrary.customview.dialog.RoundProgress
+        android:id="@+id/roundProgressBar1"
+        android:layout_width="80dip"
+        android:layout_height="80dip"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/button1"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="40dp" />
+
+</RelativeLayout>
+定义attr 属性
+    <declare-styleable name="RoundProgress">
+        <attr name="roundColor" format="color" />
+        <attr name="roundProgressColor" format="color" />
+        <attr name="roundWidth" format="dimension"></attr>
+        <attr name="textColor" format="color" />
+        <attr name="textSize" format="dimension" />
+        <attr name="max" format="integer"></attr>
+        <attr name="textIsDisplayable" format="boolean"></attr>
+        <attr name="style">
+            <enum name="STROKE" value="0"></enum>
+            <enum name="FILL" value="1"></enum>
+        </attr>
+    </declare-styleable>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

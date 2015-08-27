@@ -1,0 +1,9 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <!-- 运行记录与报警记录明细下面的按钮的字体大小 -->
+    <dimen name="button_text_size">20dp</dimen>
+
+</resources>

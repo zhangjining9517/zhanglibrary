@@ -1,0 +1,66 @@
+原理：
+在Manifest文件中，使用<activity-alias>标签为我们的入口Activity准备多个，拥有<activity-alias>标签的activity是为了指向入口Activity，每个拥有<activity-alias>标签的activity都可以单独设置一个icon，在程序中我们动态设置<activity-alias>，然后kill掉launcher，等launcher重启后，icon就替换了
+注意：
+kill掉launcher需加权限 <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
+代码：
+Manifest.xml:
+<activity
+            android:name="com.dance.changeicondemo.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        <activity-alias
+            android:name="com.example.changeicondemo.ActivityAlias1"
+            android:enabled="true"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/app_name"
+            android:targetActivity="com.dance.changeicondemo.MainActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name="com.example.changeicondemo.ActivityAlias2"
+            android:enabled="false"
+            android:icon="@drawable/icon2"
+            android:label="@string/app_name"
+            android:targetActivity="com.dance.changeicondemo.MainActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+code:
+private void setIcon(String activity_alias) {
+        Context ctx = MyApplication.getContext();
+        PackageManager pm = ctx.getPackageManager();
+        ActivityManager am = (ActivityManager) ctx.getSystemService(Activity.ACTIVITY_SERVICE);
+ 
+        // Enable/disable activity-aliases
+        pm.setComponentEnabledSetting(
+                new ComponentName(ctx, ACTIVITY_ALIAS_1),
+                ACTIVITY_ALIAS_1.equals(activity_alias) ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                        : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP);
+        pm.setComponentEnabledSetting(
+                new ComponentName(ctx, ACTIVITY_ALIAS_2),
+                ACTIVITY_ALIAS_2.equals(activity_alias) ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                        : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP);
+ 
+        // Find launcher and kill it
+        Intent i = new Intent(Intent.ACTION_MAIN);
+        i.addCategory(Intent.CATEGORY_HOME);
+        i.addCategory(Intent.CATEGORY_DEFAULT);
+        List<ResolveInfo> resolves = pm.queryIntentActivities(i, 0);
+        for (ResolveInfo res : resolves) {
+            if (res.activityInfo != null) {
+                am.killBackgroundProcesses(res.activityInfo.packageName);
+            }
+        }
+    }
+

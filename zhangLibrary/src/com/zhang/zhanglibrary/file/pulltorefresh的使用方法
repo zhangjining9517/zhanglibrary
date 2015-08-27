@@ -1,0 +1,64 @@
+xml的布局
+---------------------------
+<tf.trainmanworkstatus.view.pulltorefresh.PullToRefreshListView
+        android:id="@+id/lv_data_query_record_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+代码部分
+
+
+	@ViewInject(R.id.lv_data_query_record_list)
+	private PullToRefreshListView lv_data_query_record_list;
+		
+		//设置下拉刷新、上拉加载
+		lv_data_query_record_list.setPullLoadEnabled(false);
+		lv_data_query_record_list.setScrollLoadEnabled(true);
+		m_ListView = lv_data_query_record_list.getRefreshableView();
+		lv_data_query_record_list
+				.setOnRefreshListener(new OnRefreshListener<ListView>() {
+
+					@Override
+					public void onPullDownToRefresh(
+							PullToRefreshBase<ListView> refreshView) {
+						// TODO Auto-generated method stub
+						m_CurrentPage = 1;
+						//加载数据
+						loadData(PULL_TO_REFRESH, m_CurrentPage);
+					}
+
+					@Override
+					public void onPullUpToRefresh(
+							PullToRefreshBase<ListView> refreshView) {
+						// TODO Auto-generated method stub
+						m_CurrentPage++;
+						loadData(PULL_TO_LOAD, m_CurrentPage);
+					}
+				});
+				
+		//设置更新最近时间
+		setLastUpdateTime();
+		lv_data_query_record_list.doPullRefreshing(true, 500);
+		
+		/**
+		* 设置更新最近时间
+		*
+		*/
+		private void setLastUpdateTime() {
+			// TODO Auto-generated method stub
+			String text = formatDateTime(System.currentTimeMillis());
+			lv_data_query_record_list.setLastUpdatedLabel(text);
+		}
+	
+		/**
+	 * 
+	 * 功能:初始化时间格式
+	 * 
+	 * @param time
+	 * @return
+	 */
+	private String formatDateTime(long time) {
+		if (0 == time) {
+			return "";
+		}
+		return mDateFormat.format(new Date(time));
+	}

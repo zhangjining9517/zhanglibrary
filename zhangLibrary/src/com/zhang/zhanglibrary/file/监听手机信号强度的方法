@@ -1,0 +1,55 @@
+
+	/* 我们可以用它们onResume和onPause方法停止listene */
+	TelephonyManager Tel;
+	MyPhoneStateListener MyListener;
+	
+	/** 数据网络信号强度的监听 */
+	MyListener = new MyPhoneStateListener();
+	Tel = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+	Tel.listen(MyListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+		
+		
+	@Override
+	protected void onResume() {
+		super.onResume();
+		registerRecordBroadcastReceiver();
+		// m_BroadcastHandler.sendEmptyMessage(NET_STATE);
+		Tel.listen(MyListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+	}
+	
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		Tel.listen(MyListener, PhoneStateListener.LISTEN_NONE);
+	}
+	
+	/* 开始PhoneState听众 */
+	private class MyPhoneStateListener extends PhoneStateListener {
+		/* 从得到的信号强度,每个tiome供应商有更新 */
+		@Override
+		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+			super.onSignalStrengthsChanged(signalStrength);
+			try {
+				Class<SignalStrength> c = SignalStrength.class;
+				Method method = c.getMethod("getLevel");
+				method.setAccessible(true);
+				int obj = (Integer) method.invoke(signalStrength, null);
+				n3GRissStrength = obj;
+				m_BroadcastHandler.sendEmptyMessage(NET_STATE);
+				Log.e("MainActivity", obj + "sdfasdf--------");
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	};

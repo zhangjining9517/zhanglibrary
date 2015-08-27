@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" >
+	<!-- 图形的圆角度数 -->
+    <corners android:radius="50dp" />
+	<!-- 图形背景颜色 -->
+    <solid android:color="#00FF05" />
+
+</shape>

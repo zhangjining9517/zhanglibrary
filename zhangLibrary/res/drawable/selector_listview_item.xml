@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 按下的效果 -->
+    <item android:state_pressed="true">
+        <shape >
+            <corners android:radius="3dip"/>
+            <solid android:color="#EEAD0E"/>
+            
+            <padding 
+                android:left="1dp"
+                android:right="1dp"
+                />
+        </shape>
+    </item>
+    <!-- 默认效果 -->
+    <item android:state_pressed="false">
+        <shape >
+            <corners android:radius="3dip"/>
+            <solid android:color="#f8f8f8"/>
+            
+            <padding 
+                android:left="1dp"
+                android:right="1dp"
+                />
+        </shape>
+    </item>
+</selector>
